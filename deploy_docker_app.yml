@@ -1,0 +1,26 @@
+---
+- name: Install Docker and Deploy Apache Web Server in Docker Container
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install Docker
+      apt:
+        name: docker.io
+        state: present
+        update_cache: yes
+
+    - name: Ensure Docker service is started
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Create a Docker container running Apache with Hello World page
+      docker_container:
+        name: apache_hello_world
+        image: httpd:alpine
+        state: started
+        restart_policy: always
+        published_ports:
+          - "80:80"
+        command: "/bin/sh -c 'echo \"<html><body><h1>Hello, World!</h1></body></html>\" > /usr/local/apache2/htdocs/index.html && httpd-foreground'"
